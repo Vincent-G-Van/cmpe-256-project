@@ -58,8 +58,8 @@ def jac_sim(main, query, k, res):
     #print(sen)
 
     # create dataframe to output 
-    df = pd.DataFrame(columns=['items', 'jaccard'])
-    df.to_csv(out_file, mode='w', header=True, index=False)
+    #df = pd.DataFrame(columns=['items', 'jaccard'])
+    #df.to_csv(out_file, mode='w', header=True, index=False)
 
     # loop through shingles and compare
     for k in range(len(shingles)):
@@ -68,15 +68,15 @@ def jac_sim(main, query, k, res):
             # append index and score
             sim.append([k, jsim, main[k][1]])
             # also save index and score to output file
-            with open(out_file, mode='a', newline='') as file:
-                df = pd.DataFrame([{'items': k, 'jaccard': jsim}])
-                df.to_csv(file, header=False, index=False)
+            #with open(out_file, mode='a', newline='') as file:
+            #    df = pd.DataFrame([{'items': k, 'jaccard': jsim}])
+            #    df.to_csv(file, header=False, index=False)
     
     # sort by jaccard scores (highest ascending)
     sim = sorted(sim, key=lambda x: x[1], reverse=True)[0:res]
 
     # sort by closest sentiment score
-    sim = sorted(sim, key=lambda x: abs(x[2] - sen))
+    sim = sorted(sim, key=lambda x: abs(x[1] - sen[0]))
 
     # return back sorted list but up to resolution desired size
     #return sim[0:res]
