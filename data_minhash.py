@@ -45,25 +45,24 @@ test      = False
 # compute actual jaccard similarities among all pairs of data samples
 
 def min_hash(main, query, k, n, res):
-    ran = res
     sim_list = []
     nhashes = n
+    ran = res
     all_entries2 = [entry[0] for entry in main]
-    one = query
-    one_shin = gen_shin(" ".join(one), k)
+
+    # generate MinHash
+    one_shin = gen_shin(" ".join(query), k)
     m_one = datasketch.MinHash(nhashes)
-    for i in one_shin:
-        m_one.update(i.encode('utf8'))
+    m_one.update_batch([i.encode('utf8') for i in one_shin])
+
     if test:
         print("one_shin: " + str(one_shin))
         print("m2           : " + str(m_one))
 
     # setup minhas for all_entries2
     for idx, doc in enumerate(all_entries2):
-        all_shin = gen_shin(doc, k)
         m_all = datasketch.MinHash(nhashes)
-        for i in all_shin:
-            m_all.update(i.encode('utf8'))
+        m_all.update_batch([i.encode('utf8') for i in gen_shin(doc, k)])
 
         # find approx jaccard sim
         sim = m_one.jaccard(m_all)
@@ -72,11 +71,10 @@ def min_hash(main, query, k, n, res):
         sim_list.append((sim, idx, main[idx][1]))
 
     # sort list
-    sim_list2 = sorted(sim_list, key=lambda x: -x[0])[:ran]
+    sim_list = sorted(sim_list, key=lambda x: -x[0])[:ran]
 
     # get sentiment of query
-    sen = [get_sentiment(text) for text in query]
+    query_sentiment = get_sentiment(query[0])
+    sim_list.sort(key=lambda x: abs(x[2] - query_sentiment))
 
-    sim_list2 = sorted(sim_list2, key=lambda x: abs(x[2] - sen[0]))
-
-    return sim_list2
+    return sim_list
